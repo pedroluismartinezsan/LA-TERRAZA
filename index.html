@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#101010">
+  <meta name="description" content="Sistema de pedidos, mesas y caja de LA TERRAZA.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon-192.png">
+  <title>LA TERRAZA</title>
+  <style>
+    :root { color-scheme:dark; }
+    * { box-sizing:border-box; }
+    html, body { margin:0; width:100%; height:100%; background:#101010; color:#fff; font-family:Arial,Helvetica,sans-serif; }
+    body { display:flex; flex-direction:column; overflow:hidden; }
+    header { min-height:54px; display:flex; align-items:center; gap:12px; padding:8px 14px; background:#141414; border-bottom:1px solid #383838; }
+    .logo { width:34px; height:34px; border:1px solid #c6a76a; border-radius:10px; display:grid; place-items:center; color:#c6a76a; font-size:20px; flex:none; }
+    .brand { min-width:0; }
+    .brand strong { letter-spacing:2px; font-size:16px; display:block; }
+    .brand small { color:#aaa; font-size:9px; letter-spacing:1px; }
+    #install { margin-left:auto; display:none; border:0; border-radius:8px; background:#c6a76a; color:#111; font-weight:bold; padding:9px 11px; }
+    main { flex:1; min-height:0; }
+    iframe { display:block; width:100%; height:100%; border:0; background:#101010; }
+    #notice { display:none; padding:14px; background:#2b2110; color:#f5ddb0; font-size:13px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">✦</div>
+    <div class="brand">
+      <strong>LA TERRAZA</strong>
+      <small>COMUNIDAD CRISTIANA EL ENCUENTRO</small>
+    </div>
+    <button id="install" type="button">INSTALAR APP</button>
+  </header>
+  <div id="notice">Configura la dirección de tu aplicación de Google Apps Script en el archivo index.html.</div>
+  <main>
+    <iframe id="app" title="Sistema LA TERRAZA" allow="clipboard-read; clipboard-write"></iframe>
+  </main>
+  <script>
+    // REEMPLAZA este texto por la URL /exec de tu aplicación de Apps Script.
+    const APP_SCRIPT_URL = 'PEGA_AQUI_LA_URL_DE_TU_APLICACION_APPS_SCRIPT';
+
+    if (APP_SCRIPT_URL.startsWith('https://script.google.com/')) {
+      document.getElementById('app').src = APP_SCRIPT_URL;
+    } else {
+      document.getElementById('notice').style.display = 'block';
+      document.getElementById('app').style.display = 'none';
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => console.warn('No se pudo registrar el service worker:', err));
+      });
+    }
+
+    let installPrompt = null;
+    const installButton = document.getElementById('install');
+    window.addEventListener('beforeinstallprompt', event => {
+      event.preventDefault();
+      installPrompt = event;
+      installButton.style.display = 'block';
+    });
+    installButton.addEventListener('click', async () => {
+      if (!installPrompt) return;
+      installPrompt.prompt();
+      await installPrompt.userChoice;
+      installPrompt = null;
+      installButton.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
